@@ -1,0 +1,329 @@
+{% extends 'users/layout.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block css %}
+<link href="{% static 'diary/css/style.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+{% include 'diary/modals.html' %}
+<div class="container" style="margin-top:30px">
+    {% if messages or form.non_field_errors %}
+    <div class="alert
+  {% if messages %}
+    {% for message in messages %}
+      {% if 'success' in message.tags %}
+        alert-success
+        {% else %}
+        alert-warning
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    alert-warning
+  {% endif %}
+  alert-dismissible fade show" role="alert"
+         style="margin-top: 50px;">
+
+        {% if messages %}
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+        {% else %}
+        {{ form.non_field_errors }}
+        {% endif %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    <div class="diary-summary">
+        <div class="col-md-4 text-end w-100">
+            <div class="input-group" style='margin-bottom:10px;'>
+                <input type="date" value="" class="form-control" id="datepicker" aria-required="true"
+                       aria-invalid="false"
+                       placeholder='{{day.date}}' onchange="this.className=(this.value!=''?'has-value':'')">
+                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+            </div>
+        </div>
+        <div class="diary-card w-100">
+            <h4 class="mb-2">Сводная информация</h4>
+            <div class="row">
+                <div class="col-md-2 ">
+                    <p class="mb-0">Белки: <span id="protein-summary">{%if total_sum.0.protein%}{{total_sum.0.protein|floatformat}} {%else%} 0 {%endif%}</span>
+                        г</p>
+                </div>
+                <div class="col-md-2">
+                    <p class="mb-0">Жиры: <span id="fat-summary">{%if total_sum.0.fat%}{{total_sum.0.fat|floatformat}} {%else%} 0 {%endif%}</span>
+                        г</p>
+                </div>
+                <div class="col-md-2">
+                    <p class="mb-0">Углеводы: <span id="carb-summary">{%if total_sum.0.carbs%}{{total_sum.0.carbs|floatformat}} {%else%} 0 {%endif%}</span>
+                        г</p>
+                </div>
+                <div class="col-md-2">
+                    <p class="mb-0">Калории: <span id="calories-summary">{%if total_sum.0.calories%}{{total_sum.0.calories|floatformat}} {%else%} 0 {%endif%}</span>
+                        ккал</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="diary-card w-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h4 class="card-title mb-0">Завтрак</h4>
+                        <div class="add-food-button">
+                            <i class="fas fa-plus fa-lg text-success" data-bs-toggle="modal"
+                               data-bs-target="#searchFoodModal"
+                               data-bs-config='{"rep_type": 0}'>
+                            </i>
+                        </div>
+                    </div>
+                    {%if total_sum.1.calories > 0 %}
+                    <div class="accordion" id="accordionExample_1">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseOne_1" aria-expanded="true"
+                                        aria-controls="collapseOne_1"
+                                        style='font-size: 40%'>
+                                    Белки: {{total_sum.1.protein|floatformat}}г, Углеводы:
+                                    {{total_sum.1.carbs|floatformat}}г, Жиры:
+                                    {{total_sum.1.fat|floatformat}}г, Калории:
+                                    {{total_sum.1.calories|floatformat}} ккал
+                                </button>
+                            </h2>
+                            <div id="collapseOne_1" class="accordion-collapse collapse"
+                                 data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    {% for el in diary_obj %}
+                                    {% if el.report_type == 0 %}
+                                    <div class="found_food">
+                                        <div class="card mb-3 text-center" style="padding: 10px 0;"
+                                             data-bs-toggle="modal"
+                                             data-bs-target="#changeFoodSettingsModal" data-bs-dismiss="modal"
+                                             data-bs-config='{
+                                             "weight":{{el.weight|safe}},
+                                             "protein":{{el.product.protein|safe}},
+                                             "fat":{{el.product.fat|safe }},
+                                             "calories":{{el.product.calories|safe }},
+                                             "carbs":{{el.product.carbohydrates|safe }},
+                                             "id":{{el.id|safe }},
+                                             "product":{{el.product.pk|safe }},
+                                             "report":{{day.pk}},
+                                             "rep_id":{{el.report_type|safe }}}'>
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item">
+                                                    <div class='card-header mb-1 d-flex align-items-center justify-content-between'>
+                                                        <h6 class="">{{el.product.name}}</h6>
+                                                        <i class="fas fa-edit" style="margin-right: 5px;"></i>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <p class="mb-1">Калории:
+                                                            {{el.product.calories|divide:100|multiply:el.weight|floatformat}}
+                                                            ккал</p>
+                                                        <p class="mb-1">Белки:
+                                                            {{el.product.protein|divide:100|multiply:el.weight|floatformat}}г</p>
+                                                        <p class="mb-1">Жиры:
+                                                            {{el.product.fat|divide:100|multiply:el.weight|floatformat}}г</p>
+                                                        <p class="mb-1">Углеводы:
+                                                            {{el.product.carbohydrates|divide:100|multiply:el.weight|floatformat}}г</p>
+                                                        <p class="mb-1">Вес: {{el.weight}}г</p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {%endif%}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="diary-card w-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h4 class="card-title mb-0">Обед</h4>
+                        <div class="add-food-button">
+                            <i class="fas fa-plus fa-lg text-success" data-bs-toggle="modal"
+                               data-bs-target="#searchFoodModal"
+                               data-bs-config='{"rep_type": 1}'>
+                            </i>
+                        </div>
+                    </div>
+                    {%if total_sum.2.calories > 0 %}
+                    <div class="accordion" id="accordionExample_2">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseOne_2" aria-expanded="true"
+                                        aria-controls="collapseOne_2"
+                                        style='font-size: 40%'>
+                                    Белки: {{total_sum.2.protein|floatformat}}г, Углеводы:
+                                    {{total_sum.2.carbs|floatformat}}г, Жиры:
+                                    {{total_sum.2.fat|floatformat}}г, Калории:
+                                    {{total_sum.2.calories|floatformat}} ккал
+                                </button>
+                            </h2>
+                            <div id="collapseOne_2" class="accordion-collapse collapse"
+                                 data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    {% for el in diary_obj %}
+                                    {% if el.report_type == 1 %}
+                                    <div class="found_food">
+                                        <div class="card mb-3 text-center" style="padding: 10px 0;"
+                                             data-bs-toggle="modal"
+                                             data-bs-target="#changeFoodSettingsModal" data-bs-dismiss="modal"
+                                             data-bs-config='{
+                                             "weight":{{el.weight|safe}},
+                                             "protein":{{el.product.protein|safe}},
+                                             "fat":{{el.product.fat|safe }},
+                                             "calories":{{el.product.calories|safe }},
+                                             "carbs":{{el.product.carbohydrates|safe }},
+                                             "id":{{el.id|safe }},
+                                             "product":{{el.product.pk|safe }},
+                                             "report":{{day.pk|safe }},
+                                             "rep_id":{{el.report_type|safe }}}'>
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item">
+                                                    <div class='card-header mb-1 d-flex align-items-center justify-content-between'>
+                                                        <h6 class="">{{el.product.name}}</h6>
+                                                        <i class="fas fa-edit" style="margin-right: 5px;"></i>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <p class="mb-1">Калории:
+                                                            {{el.product.calories|divide:100|multiply:el.weight|floatformat}}
+                                                            ккал</p>
+                                                        <p class="mb-1">Белки:
+                                                            {{el.product.protein|divide:100|multiply:el.weight|floatformat}}г</p>
+                                                        <p class="mb-1">Жиры:
+                                                            {{el.product.fat|divide:100|multiply:el.weight|floatformat}}г</p>
+                                                        <p class="mb-1">Углеводы:
+                                                            {{el.product.carbohydrates|divide:100|multiply:el.weight|floatformat}}г</p>
+                                                        <p class="mb-1">Вес: {{el.weight}}г</p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {%endif%}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="diary-card w-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h4 class="card-title mb-0">Ужин</h4>
+                        <div class="add-food-button">
+                            <i class="fas fa-plus fa-lg text-success" data-bs-toggle="modal"
+                               data-bs-target="#searchFoodModal"
+                               data-bs-config='{"rep_type": 2}'>
+                            </i>
+                        </div>
+                    </div>
+                    {%if total_sum.3.calories > 0 %}
+                    <div class="accordion" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
+                                        style='font-size: 40%'>
+                                    Белки: {{total_sum.3.protein|floatformat}}г, Углеводы:
+                                    {{total_sum.3.carbs|floatformat}}г, Жиры:
+                                    {{total_sum.3.fat|floatformat}}г, Калории:
+                                    {{total_sum.3.calories|floatformat}} ккал
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse"
+                                 data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    {% for el in diary_obj %}
+                                    {% if el.report_type == 2 %}
+                                    <div class="found_food">
+                                        <div class="card mb-3 text-center" style="padding: 10px 0;"
+                                             data-bs-toggle="modal"
+                                             data-bs-target="#changeFoodSettingsModal" data-bs-dismiss="modal"
+                                             data-bs-config='{
+                                             "weight":{{el.weight|safe}},
+                                             "protein":{{el.product.protein|safe}},
+                                             "fat":{{el.product.fat|safe }},
+                                             "calories":{{el.product.calories|safe }},
+                                             "carbs":{{el.product.carbohydrates|safe }},
+                                             "product":{{el.product.pk|safe }},
+                                             "id":{{el.id|safe }},
+                                             "report":{{day.pk|safe }},
+                                             "rep_id":{{el.report_type|safe }}}'>
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item">
+                                                    <div class='card-header mb-1 d-flex align-items-center justify-content-between'>
+                                                        <h6 class="">{{el.product.name}}</h6>
+                                                        <i class="fas fa-edit" style="margin-right: 5px;"></i>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <p class="mb-1">Калории:
+                                                            {{el.product.calories|divide:100|multiply:el.weight|floatformat}}
+                                                            ккал</p>
+                                                        <p class="mb-1">Белки:
+                                                            {{el.product.protein|divide:100|multiply:el.weight|floatformat}}г</p>
+                                                        <p class="mb-1">Жиры:
+                                                            {{el.product.fat|divide:100|multiply:el.weight|floatformat}}г</p>
+                                                        <p class="mb-1">Углеводы:
+                                                            {{el.product.carbohydrates|divide:100|multiply:el.weight|floatformat}}г</p>
+                                                        <p class="mb-1">Вес: {{el.weight}}г</p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="{% static '/diary/js/modals.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+    let previousValue = "{{ day.date|date:'Y-m-d' }}";
+    const datepicker = document.getElementById('datepicker');
+
+    datepicker.addEventListener('change', function() {
+    if (datepicker.value !== previousValue) {
+      // Здесь вы можете изменить URL на нужную вам страницу, заменив 'your_page_url' на свой URL
+      let selectedDate = datepicker.value
+      const redirectUrl = '?date=' + selectedDate;
+      previousValue = selectedDate;
+      // Перенаправляем на другую страницу
+      window.location.href = redirectUrl;
+    }
+
+    // Обновляем предыдущее значение
+    });
+
+
+
+</script>
+
+{% endblock content %}

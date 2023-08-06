@@ -1,0 +1,71 @@
+.menu {
+        background-color: #f8f9fa;
+    }
+    .menu .nav-link:hover,
+    .menu .nav-link.active {
+        background-color: #343a40;
+        color: #fff;
+    }
+.card-img-top {
+    width: 100%;
+    height: 15vw;
+    object-fit: cover;
+}
+
+.card {
+    min-height: 220px; /* Минимальная высота карточки */
+}
+
+.card-img {
+    width: 100%; /* Фиксированная ширина картинки */
+    height: 220px; /* Фиксированная высота картинки */
+    object-fit: cover; /* Обрезать и заполнить изображение внутри картинки */
+}
+
+.card-body {
+    height: 90px; /* Фиксированная высота текстового блока */
+    overflow: hidden; /* Скрыть все, что выходит за пределы блока */
+}
+
+.clear-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #999;
+}
+
+
+.category-menu .nav-link:hover {
+        background-color: #31373d; /* Используем dark из темы "Lux" для подсветки при наведении */
+        color: #fff; /* Белый шрифт для подсветки при наведении */
+    }
+    .category-menu .nav-link.active {
+        background-color: #31373d; /* Используем dark из темы "Lux" для активного состояния */
+        color: #fff; /* Белый шрифт для активного состояния */
+    }
+
+    .pagination .page-item .page-link {
+        color: #343a40; /* Текст кнопок в темной теме "Lux" */
+    }
+    .pagination .page-item .page-link:hover {
+        background-color: #343a40; /* Подсветка кнопок при наведении */
+        color: #fff; /* Белый шрифт для кнопок при наведении */
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #343a40; /* Фон активной кнопки */
+        color: #fff; /* Белый шрифт для активной кнопки */
+    }
+
+/* Убираем подчеркивание для всех ссылок */
+a {
+  text-decoration: none;
+}
+
+/* Добавляем подчеркивание только при наведении курсора на ссылку */
+a:hover {
+  text-decoration: underline;
+}
+

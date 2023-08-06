@@ -1,0 +1,113 @@
+{% extends 'users/layout.html' %}
+{% load static %}
+
+{% block css %}
+<link href="{% static 'calculator/css/calculator.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+{% endblock style %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            {% if messages or form.non_field_errors %}
+            <div class="alert
+              {% if messages %}
+                {% for message in messages %}
+                  {% if 'success' in message.tags %}
+                    alert-success
+                    {% else %}
+                    alert-warning
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                alert-warning
+              {% endif %}
+              alert-dismissible fade show" role="alert"
+                 style="margin-top: 50px;">
+
+                {% if messages %}
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+                {% else %}
+                {{ form.non_field_errors }}
+                {% endif %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            <h4 class="mt-3 mb-3">Профиль</h4>
+            <div class="col-lg-12 text-center" style="margin-bottom: 15px;">
+                <img width="150" height="150"
+                     src="{% if user.image %} {{ user.image.url }} {% else %} {% static '/img/users/default_avatar.jpg' %} {% endif %}"
+                     class="img-thumbnail">
+            </div>
+            <form action="{% url 'users:profile' user.id %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.image }}
+                <div class="mb-3" style="margin-top: 10px;">
+                    <label for="{{ form.username.auto_id }}" class="form-label">Имя пользователя</label>
+                    {{ form.username}}
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="{{ form.first_name.auto_id }}" class="form-label">Имя</label>
+                        {{ form.first_name}}
+                    </div>
+                    <div class="col">
+                        <label for="{{ form.last_name.auto_id }}" class="form-label">Фамилия</label>
+                        {{ form.last_name}}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.email.auto_id }}" class="form-label">Email</label>
+                    {{ form.email}}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.sex.auto_id }}" class="form-label">Пол</label>
+                    {{ form.sex }}
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="{{ form.date_birth.auto_id }}" class="form-label">Дата рождения:</label>
+                        <div class="input-group">
+                            {{ form.date_birth}}
+                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="{{ form.weight.auto_id }}" class="form-label">Текущий вес</label>
+                        <div class="input-group">
+                            {{ form.weight }}
+                            <span class="input-group-text">кг</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="{{ form.height.auto_id }}" class="form-label">Рост</label>
+                        <div class="input-group">
+                            {{ form.height }}
+                            <span class="input-group-text">см</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="{{ form.aim.auto_id }}" class="form-label">Цель по калориям</label>
+                        <div class="input-group">
+                            {{ form.aim}}
+                            <span class="input-group-text">ккал</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.activity.auto_id }}" class="form-label">Уровень активности</label>
+                    {{ form.activity }}
+                </div>
+                <button type="submit" class="btn btn-primary mt-3 w-100">Сохранить</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

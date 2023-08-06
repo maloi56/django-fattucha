@@ -1,0 +1,8 @@
+.custom-file-upload {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.custom-file-upload:hover {
+    background-color: #f0f0f0;
+}

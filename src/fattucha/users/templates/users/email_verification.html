@@ -1,0 +1,62 @@
+{% extends 'users/layout.html' %}
+
+{% block style %}
+<style>
+    /* Дополнительные стили для страницы подтверждения email */
+    .verification-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 50px 20px;
+    }
+
+    .verification-icon {
+        font-size: 48px;
+        color: #28a745;
+    }
+
+    .verification-heading {
+        margin-top: 30px;
+        margin-bottom: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .verification-message {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .verification-button {
+        display: block;
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+
+
+
+</style>
+{% endblock style %}
+
+{% block content %}
+<div class="verification-container">
+    {% if is_success %}
+    <div class="text-center">
+        <i class="fas fa-check-circle verification-icon"></i>
+    </div>
+    <h1 class="verification-heading">Регистрация пройдена!</h1>
+    <p class="verification-message">Ваш Email успешно подтвержден</p>
+    <a href="{% url 'users:login' %}" class="btn btn-primary verification-button">Продолжить</a>
+    {% else %}
+    <div class="text-center">
+        <i class="fas fa-exclamation-circle verification-icon" style="color: red;"></i>
+    </div>
+    <h1 class="verification-heading">Срок годности ссылки истек!</h1>
+    <p class="verification-message">Для подтверждения регистрации на ваш Email была отправлена новая ссылка</p>
+    <a href="{% url 'users:login' %}" class="btn btn-primary verification-button">Продолжить</a>
+    {% endif %}
+</div>
+{% endblock content %}

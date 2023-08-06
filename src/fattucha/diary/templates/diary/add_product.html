@@ -1,0 +1,91 @@
+{% extends 'users/layout.html' %}
+{% load static %}
+
+{% block style %}
+{% endblock style %}
+{% block content %}
+<div class="container">
+    {% if messages or form.non_field_errors %}
+    <div class="alert
+  {% if messages %}
+    {% for message in messages %}
+      {% if 'success' in message.tags %}
+        alert-success
+        {% else %}
+        alert-warning
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    alert-warning
+  {% endif %}
+  alert-dismissible fade show" role="alert"
+         style="margin-top: 50px;">
+
+        {% if messages %}
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+        {% else %}
+        {{ form.non_field_errors }}
+        {% endif %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            {% if messages or form.non_field_errors %}
+            <div class="alert {% if messages %}alert-success{% else %}alert-warning{% endif %} alert-dismissible fade show" role="alert" style="margin-top: 50px;">
+                {% if messages %}
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+                {% else %}
+                {{ form.non_field_errors }}
+                {% endif %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            <h4 class="mt-3 mb-3">Добавление продукта</h4>
+            <form method="POST" enctype="multipart/form-data" action="{% url 'diary:add_product'%}">
+                {% csrf_token %}
+                <div class="col-lg-12 text-center" style="margin-bottom: 15px;">
+                    <img id="image-preview" width="150" height="150" src="{% static '/img/diary/default_food.svg' %}" alt="Image preview" class="img-thumbnail">
+                </div>
+                <div class="mb-3">
+                    {{form.image}}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.name.auto_id }}" class="form-label">{{form.name.label}}</label>
+                    {{form.name}}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.brand.auto_id }}" class="form-label">{{form.brand.label}}</label>
+                    {{form.brand}}
+                </div>
+                <div class="row mb-3">
+                    <div class="col-lg-6">
+                        <label for="{{ form.calories.auto_id }}" class="form-label">{{form.calories.label}}</label>
+                        {{form.calories}}
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="{{ form.protein.auto_id }}" class="form-label">{{form.protein.label}}</label>
+                        {{form.protein}}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-lg-6">
+                        <label for="{{ form.carbohydrates.auto_id }}" class="form-label">{{form.carbohydrates.label}}</label>
+                        {{form.carbohydrates}}
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="{{ form.fat.auto_id }}" class="form-label">{{form.fat.label}}</label>
+                        {{form.fat}}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Сохранить</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="{% static '/diary/js/img_preview.js' %}"></script>
+{% endblock content %}

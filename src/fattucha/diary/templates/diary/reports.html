@@ -1,0 +1,200 @@
+{% extends 'users/layout.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load tz %}
+
+{% block css %}
+<link href="{% static 'diary/css/style.css' %}" rel="stylesheet">
+<style>
+  /* Добавим стили для адаптации таблицы на мобильных устройствах */
+  @media (max-width: 576px) {
+    .table-responsive {
+      overflow-x: auto;
+    }
+  }
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+{% with calories_1=total_sum.1.calories|default_if_none:"0" %}
+{% with calories_2=total_sum.2.calories|default_if_none:"0" %}
+{% with calories_3=total_sum.3.calories|default_if_none:"0" %}
+<div class="container">
+    <div class="row justify-content-center mb-3">
+        <div class="col-md-8">
+            <div class="dropdown" style="margin-top: 20px;">
+                <div class="btn-group w-100">
+                    <a href="{% url 'diary:reports' day|date:'Y-m-d'|delta_minus:24|date:'Y-m-d'%}"
+                       class="btn btn-primary" type="button">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <button class="btn btn-primary dropdown-toggle w-100 rounded-0" type="button"
+                            id="dropdownMenuButton"
+                            data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">
+                        {% if current_date.date == day %}Сегодня
+                        {% elif day == current_date.date|date:'Y-m-d'|delta_minus:24 %}Вчера
+                        {% else %}
+                        {{day}}
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'diary:reports' current_date.date|date:'Y-m-d'%}">
+                                Сегодня
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'diary:reports' current_date.date|date:'Y-m-d'|delta_minus:24|date:'Y-m-d'%}">
+                                Вчера
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'diary:week_reports' current_date.year current_date.week %}">
+                                Текущая неделя</a>
+                        </li>
+                    </ul>
+                    {% if current_date.date == day %}
+                    <button class="btn btn-primary" type="button" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    {% else %}
+                    <a href="{% url 'diary:reports' day|date:'Y-m-d'|delta_sum:24|date:'Y-m-d'%}"
+                       class="btn btn-primary" type="button">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex justify-content-between" style="margin-top: 20px">
+                {% with calories=total_sum.0.calories|default_if_none:"0" %}
+                {% with aim=user.aim|default_if_none:0 %}
+                <div style="margin-left: 10px;">
+                    <h3>Калории</h3>
+                    <h3>{{ calories|floatformat }}</h3>
+                    <h5><span {% if calories > aim %} style='color:red'{% endif %}>{{ calories|divide:aim|multiply:100|floatformat:0 }}%</span>
+                        от цели</h5>
+                    <h5>Цель: {{ aim }}ккал</h5>
+                </div>
+                <div class="chart-container" style="max-width: 250px;">
+                    <canvas id="calories-chart"></canvas>
+                </div>
+                {% endwith %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center mb-3">
+        <div class="col-md-12 text-center">
+            <div class="table-responsive">
+                <table class="table align-middle ">
+                    <thead>
+                    <tr>
+                        <th style="opacity:0; width: 50%;">Продукты</th>
+                        <th style='width: 50%;'>Ккал</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td style='width: 50%;'>Завтрак</td>
+                        <td style='width: 50%;'>{{calories_1|floatformat}}</td>
+                    </tr>
+                    <tr>
+                        <td style='width: 50%;'>Обед</td>
+                        <td style='width: 50%;'>{{calories_2|floatformat}}</td>
+                    </tr>
+                    <tr>
+                        <td style='width: 50%;'>Ужин</td>
+                        <td style='width: 50%;'>{{calories_3|floatformat}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center mb-3">
+        <h2 class="col-md-6 text-center">Съеденная пища</h2>
+        <div class="col-md-12 text-center">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th style='width: 50%;'>Продукты</th>
+                        <th style='width: 50%;'>Ккал</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for el in diary_obj %}
+                    <tr>
+                        <td style='width: 50%;'>{{ el.product.name }}</td>
+                        <td style='width: 50%;'>{{ el.product.calories|divide:100|multiply:el.weight|floatformat }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Итог</th>
+                        <th>{% if total_sum.0.calories %}{{ total_sum.0.calories|floatformat }}{% else %}0{% endif %}
+                        </th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Данные для диаграммы (замените их на ваши данные)
+  const chartData = {
+    labels: ['Завтрак', 'Обед', 'Ужин'],
+    datasets: [{
+      label: 'Калории',
+      data: [{{ calories_1|floatformat:0 }}, {{ calories_2|floatformat:0}}, {{ calories_3|floatformat:0 }}],
+      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+      hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+    }]
+  };
+
+  // Опции для диаграммы
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false
+  };
+
+  // Создание диаграммы
+  const ctx = document.getElementById('calories-chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: chartData,
+    options: chartOptions
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+{% endwith %}
+{% endwith %}
+{% endwith %}
+{% endblock content %}

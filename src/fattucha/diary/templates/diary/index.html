@@ -1,0 +1,128 @@
+{% extends 'users/layout.html' %}
+{% load static %}
+
+{% block style %}
+<style>
+    .company-description {
+        text-align: center;
+        padding: 50px 0;
+        background-color: #f8f9fa;
+    }
+
+    .company-description h1 {
+        font-size: 36px;
+        margin-bottom: 30px;
+    }
+
+    .company-description p {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .company-icons {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .company-icons .icon {
+        margin: 0 10px;
+        font-size: 24px;
+    }
+
+    .company-features {
+        text-align: center;
+        padding: 50px 0;
+        background-color: #fff;
+    }
+
+    .company-features h2 {
+        font-size: 30px;
+        margin-bottom: 30px;
+    }
+
+    .company-features .row {
+        display: flex;
+        justify-content: center;
+    }
+
+    .company-features .feature {
+        width: 50%;
+        margin-bottom: 30px;
+    }
+
+    .company-features .feature i {
+        font-size: 40px;
+        margin-bottom: 20px;
+    }
+
+    .company-features .feature h4 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .company-features .feature p {
+        font-size: 18px;
+        margin-bottom: 0;
+    }
+
+</style>
+{% endblock style %}
+
+{% block content %}
+<div class="company-description">
+    <div class="container">
+        <h1>Добро пожаловать в компанию FatTucha</h1>
+        <p>Мы - компания, специализирующаяся на создании инновационных продуктов для здорового образа жизни.</p>
+        <p>Наша миссия заключается в помощи людям достичь своих фитнес-целей, поддерживать здоровый образ жизни и
+            достигать гармонии между физическим и психологическим благополучием.</p>
+        <div class="company-icons">
+            <i class="icon fas fa-heart"></i>
+            <i class="icon fas fa-dumbbell"></i>
+            <i class="icon fas fa-apple-alt"></i>
+        </div>
+    </div>
+</div>
+
+<div class="company-features">
+    <div class="container">
+        <h2>Наши особенности</h2>
+        <div class="row">
+            <div class="feature">
+                <i class="fas fa-bolt"></i>
+                <h4>Инновации</h4>
+                <p>Мы постоянно исследуем новые технологии и научные открытия, чтобы предлагать самые инновационные продукты
+                    и решения для здорового образа жизни.</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-users"></i>
+                <h4>Сообщество</h4>
+                <p>Мы создаем сообщество единомышленников, где каждый может делиться опытом, находить поддержку и
+                    вдохновение для достижения своих фитнес-целей.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="feature">
+                <i class="fas fa-utensils"></i>
+                <h4>Запись рецептов</h4>
+                <p>У нас вы можете удобно записывать свои любимые рецепты и делиться ими с другими пользователями.
+                    Вдохновляйтесь новыми идеями для здорового питания.</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-star"></i>
+                <h4>Оценка рецептов</h4>
+                <p>Оценивайте рецепты, которые вам понравились, и помогайте другим пользователям выбирать лучшие варианты.
+                    Вместе мы создаем коммунити здорового питания.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="feature">
+                <i class="fas fa-calculator"></i>
+                <h4>Калькуляторы питания</h4>
+                <p>В будущем мы предоставим полезные калькуляторы для подсчета фитнес-показателей, чтобы помочь вам достичь
+                    своих целей и следить за питанием.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

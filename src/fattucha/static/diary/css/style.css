@@ -1,0 +1,69 @@
+/* Дополнительные стили для страницы "Дневник" */
+    .diary-summary {
+        margin-bottom: 20px;
+    }
+    .diary-card {
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 20px;
+    }
+    .diary-card .card-title {
+        font-weight: bold;
+    }
+    .diary-card .add-food-button {
+        cursor: pointer;
+    }
+    .diary-card .food-item {
+        margin-bottom: 10px;
+    }
+    .diary-card .food-item .edit-food {
+        cursor: pointer;
+    }
+
+    .found_food {
+        cursor: pointer;
+    }
+
+    .add-food-button i:hover {
+    cursor: pointer;
+}
+
+.clear-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #999;
+}
+
+
+input[type="date"] {
+  position: relative;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  color: transparent;
+  background: transparent;
+}
+input[type="date"]:not(.has-value):before {
+  content: attr(placeholder);
+  width: 100%;
+}
+.input-group-text {
+  background-color: #f0f0f0;
+  border: 1px solid #ced4da;
+  border-left: none; /* Убираем левую границу для того, чтобы иконка была ближе к полю ввода */
+
+
+
+

@@ -1,0 +1,263 @@
+{% extends 'users/layout.html' %}
+{% load static %}
+
+{% block css %}
+<link href="{% static 'diary/css/style.css' %}" rel="stylesheet">
+<link href="{% static 'recipes/css/add_recipe.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            {% if messages or form.non_field_errors %}
+            <div class="alert
+              {% if messages %}
+                {% for message in messages %}
+                  {% if 'success' in message.tags %}
+                    alert-success
+                    {% else %}
+                    alert-warning
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                alert-warning
+              {% endif %}
+              alert-dismissible fade show" role="alert"
+                 style="margin-top: 50px;">
+
+                {% if messages %}
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+                {% else %}
+                {{ form.non_field_errors }}
+                {% endif %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+        </div>
+        <div class="d-flex">
+            <h1 style="margin-right: 5px">Добавить рецепт</h1>
+            <span data-toggle="tooltip" class="d-inline align-self-center" data-bs-placement="bottom"
+                  title='Чтобы поделиться своим рецептом, его необходимо отправить на рассмотрение, нажав "Опубликовать рецепт". После того, как вы отправите рецепт на рассмотрение, его больше нельзя будет отредактировать.'>
+                <i class="fas fa-info-circle fa-lg"></i>
+            </span>
+        </div>
+        <form action="{% url 'recipes:add_recipe' %}" method="post" id="recipe-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="col mb-3">
+                <label for="{{ form.name.auto_id }}" class="form-label">{{form.name.label}}</label>
+                {{form.name}}
+            </div>
+            <div class="col mb-3">
+                <label for="{{ form.description.auto_id }}" class="form-label">{{form.description.label}}</label>
+                {{form.description}}
+            </div>
+            <div class="col mb-3">
+                <label for="{{ form.portion.auto_id }}" class="form-label">{{form.portion.label}}</label>
+                {{form.portion}}
+            </div>
+            <div class="col mb-3">
+                <label for="{{ form.time_to_cook.auto_id }}" class="form-label">{{form.time_to_cook.label}}</label>
+                {{form.time_to_cook}}
+            </div>
+            <div class="col mb-3">
+                <h3 class="mt-3">Способ приготовления</h3>
+                <div id="steps-formset">
+                    {{ steps_formset.management_form }}
+                    {% for form in steps_formset %}
+                    <div class="step-formset-item mt-3">
+                        <div class="row mb-2 align-items-center">
+                            <div class="col-md-7 mt-3">
+                                <span>
+                                    <i class="fa-solid fa-plate-wheat fa-lg"></i>
+                                </span>
+                                Шаг 1
+                                {{ form.step }}
+                                {{ form.how_to_cook }}
+                            </div>
+                            <div class="col-md-5 mt-5">
+                                <label for="{{form.image.auto_id}}">
+                                    <img class="img-thumbnail custom-file-upload" id="ingredient-preview-0" width="100%" height="264px" src="{% static '/img/recipes/ingredient.png' %}" alt="Image preview">
+                                </label>
+                                {{ form.image }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="col">
+                    <button type="button" id="add-step-btn" class="btn btn-primary mt-3">
+                        Добавить шаг
+                    </button>
+                </div>
+            </div>
+            <div class="col mb-3">
+                <label for="{{ form.category.auto_id }}" class="form-label">{{form.category.label}}</label>
+                {{form.category}}
+            </div>
+            <div class="row justify-content-center">
+                <h4> Фотография готового блюда</h4>
+                <div class="col-md-4">
+                    <label for="image-input" class="custom-file-upload">
+                        <img class="img-thumbnail custom-file-upload" id="image-preview"
+                             src="{% static '/img/diary/upload_img.png' %}" alt="Image preview">
+                    </label>
+                    {{form.image}}
+                </div>
+            </div>
+            <h4 class="mt-4">Ингредиенты (минимум 3)</h4>
+            <div id="ingredients-formset">
+                {{ ingredient_formset.management_form }}
+                {% for form in ingredient_formset %}
+                <div class="formset-item">
+                    <div class="row mb-2">
+                        <div class="col">
+                            {{ form.product.label_tag }}
+                            {{ form.product }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.weight.label_tag }}
+                            {{ form.weight }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="col">
+                <button type="button" id="add-ingredient-btn" class="btn btn-primary mt-3"
+                        data-bs-toggle="modal"
+                        data-bs-target="#searchFoodModal">Добавить ингредиент
+                </button>
+            </div>
+            <div class="col">
+                <input type="submit" value="Опубликовать рецепт" class="btn btn-success mt-5 w-100">
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="searchFoodModal" tabindex="-1" aria-labelledby="searchFoodModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchFoodModalLabel">Поиск продукта</h5>
+            </div>
+            <div class="modal-body">
+                <div style="position: relative;">
+                    <input type="text" class="form-control mb-3" id="food-search-input" name='s'
+                           placeholder="Введите название продукта"/>
+                    <input type="Hidden" id="rep_type_input"/>
+                    <span class="clear-icon">&times;</span>
+                </div>
+                <div id="box" style="margin-top:15px">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <p>Не можете найти желаемое?</p>
+                <a href="{% url 'diary:add_product' %}">
+                    <i class="fas fa-utensils"></i> Добавить новую еду
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Модальное окно "Добавление продукта в дневник" -->
+<div class="modal fade" id="addFoodModal" tabindex="-1" aria-labelledby="addFoodModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFoodModalLabel">Добавление продукта в дневник</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="{{form.weight.auto_id}}" class="form-label">Вес продукта (в граммах):</label>
+                <div class="input-group mb-3">
+                    <input type="number" class="form-control" placeholder="Введите вес" min="0" id="food-weight">
+                    <span class="input-group-text">г</span>
+                </div>
+
+                <table class="table table-bordered">
+                    <tbody>
+                    <tr>
+                        <td class="text-center" id='calories'>Калории<br></td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" id='protein'>Белки<br></td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" id='fat'>Жиры<br></td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" id='carbs'>Углеводы<br></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="form-group d-flex align-items-center justify-content-between mt-4">
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+                            data-bs-target="#searchFoodModal" data-bs-dismiss="modal">Назад
+                    </button>
+                    <button type="button" class="btn btn-primary"
+                            id="save-food-button">Сохранить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="changeFoodSettingsModal" tabindex="-1" aria-labelledby="addFoodModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeFoodSettingsModalLabel">Изменение продукта в дневнике</h5>
+            </div>
+            <div class="modal-body">
+                <label for="change_weight" class="form-label">Вес продукта (в граммах):</label>
+                <div class="input-group mb-3">
+                    <input type="number" class="form-control" min="0" placeholder="Введите вес ингредиента"
+                           id="change_weight">
+                    <span class="input-group-text">г</span>
+                </div>
+                <table class="table table-bordered">
+                    <tbody>
+                    <tr>
+                        <td class="text-center" id='calories_1'>Калории<br></td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" id='protein_1'>Белки<br></td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" id='fat_1'>Жиры<br></td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" id='carbs_1'>Углеводы<br></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="form-group mt-4">
+                    <button class="btn btn-primary w-100" id="save-changes_food-button" name="update_sub"
+                            data-bs-dismiss="modal">
+                        Сохранить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+<script src="{% static '/recipes/js/modals.js' %}"></script>
+<script src="{% static '/recipes/js/steps_formset.js' %}"></script>
+<script src="{% static '/recipes/js/img_preview.js' %}"></script>
+{% endblock %}

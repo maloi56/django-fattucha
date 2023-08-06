@@ -1,0 +1,61 @@
+{% extends 'users/layout.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block css %}
+{% endblock %}
+
+{% block style %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <h1 class="text-center">Приобретение премиум-подписки</h1>
+            <div class="mt-4">
+                <div class="card-body">
+                    <h4 class="card-text">Получите премиум-доступ и разблокируйте все возможности калькулятора!</h4>
+                    <ul>
+                        <li class="h6">Неограниченное использование всех калькуляторов</li>
+                        <li class="h6">Просмотр подробной статистики и графиков</li>
+                        <li class="h6">Персональные рекомендации по питанию и тренировкам</li>
+                        <li class="h6">Сохранение и отслеживание своих результатов</li>
+                        <li class="h6">Эксклюзивный контент и новые функции</li>
+                    </ul>
+                    <div class="mt-4">
+                        <h4 class="text-center">Тарифы</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Тариф</th>
+                                <th>Цена</th>
+                                <th>Срок</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for tariff in tariffs %}
+                            <tr>
+                                <td>{{tariff.name}}</td>
+                                <td>{{tariff.price}} рублей</td>
+                                <td>{{tariff.duration}} {% if tariff.duration == 1 %}месяц {% elif tariff.duration < 5%} месяца {% else%} месяцев
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <form action="{% url 'users:premium' %}" method="POST">
+                        {% csrf_token %}
+                        {{form.tariffs}}
+                        <button type="submit" class="btn btn-primary btn-block w-100 mt-3" id="buyPremium">Купить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

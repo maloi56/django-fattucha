@@ -1,0 +1,173 @@
+{% extends 'users/layout.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load tz %}
+
+{% block css %}
+<link href="{% static 'calculator/css/calculator.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+{% now "SHORT_DATETIME_FORMAT" as today%}
+{% if not user.is_premium_active %}
+<div class="premium-overlay"></div>
+<div class="modal modal-lg" id="premiumModal" tabindex="-1" aria-labelledby="premiumModalLabel" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="premiumModalLabel">Получите премиум-доступ!</h5>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Получите премиум-доступ и разблокируйте все возможности калькулятора!
+                </p>
+                <p>
+                    Премиум-подписка позволит вам получить дополнительные функции и возможности для более точных
+                    расчетов и отслеживания вашего прогресса.
+                </p>
+                <p>
+                    <strong>Премиум-подписка всего за 100₽ в месяц!</strong>
+                </p>
+                <p>
+                    <a href="{% url 'users:profile' user.id %}" class="btn btn-primary w-100">Продолжить бесплатно</a>
+                    <a href="{% url 'users:premium' %}" class="btn btn-outline-primary w-100 mt-2">Получить премиум</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+$(document).ready(function () {
+        $('#premiumModal').modal('show');
+    });
+</script>
+{% else %}
+<div class="container mt-5">
+    {% if user.aim is None or user.height is None or user.sex is None or user.activity is None or user.date_birth is None %}
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h3 style="text-align: center;">Не все данные заполнены</h3>
+            <button class="btn btn-primary w-100"
+                    data-bs-toggle="modal"
+                    data-bs-target="#updateUserData">
+                Обновить данные
+            </button>
+            <div class="modal fade" id="updateUserData" tabindex="-1" aria-labelledby="updateUserDataLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateUserDataLabel">Обновление данных</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div style="position: relative;">
+                                <form action="{% url 'calculator:calculator' user.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="{{ form.sex.auto_id }}" class="form-label">Пол</label>
+                                        {{ form.sex }}
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col">
+                                            <label for="{{ form.date_birth.auto_id }}" class="form-label">Дата
+                                                рождения:</label>
+                                            <div class="input-group">
+                                                {{ form.date_birth}}
+                                                <span class="input-group-text"><i
+                                                        class="fas fa-calendar-alt"></i></span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <label for="{{ form.weight.auto_id }}" class="form-label">Текущий
+                                                вес</label>
+                                            <div class="input-group">
+                                                {{ form.weight }}
+                                                <span class="input-group-text">кг</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col">
+                                            <label for="{{ form.height.auto_id }}" class="form-label">Рост</label>
+                                            <div class="input-group">
+                                                {{ form.height }}
+                                                <span class="input-group-text">см</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <label for="{{ form.aim.auto_id }}" class="form-label">Цель по
+                                                калориям</label>
+                                            <div class="input-group">
+                                                {{ form.aim}}
+                                                <span class="input-group-text">ккал</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="{{ form.activity.auto_id }}" class="form-label">Уровень
+                                            активности</label>
+                                        {{ form.activity }}
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Сохранить</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <h5 class="">
+                Согласно формуле Харриса-Бенедикта ваш базовый обмен вещества составляет:
+                {{formula | floatformat:0}} ккал
+            </h5>
+            <div class="row justify-content-center">
+                <div class="col-md-6 mb-3">
+                    <label for="wanted_kkal" class="form-label">Какой дефицит калорий вы хотите соблюдать?</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="wanted_kkal">
+                        <span class="input-group-text">ккал</span>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="wanted_days" class="form-label">Какой промежуток дней?</label>
+                    <input type="number" class="form-control" id="wanted_days">
+                </div>
+            </div>
+            <button class="btn btn-primary w-100" id="get_calories">
+                Рассчитать
+            </button>
+
+            <div id="result" class="mt-3">
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="alert alert-info" role="alert">
+                <h6 class="text-center">Как это работает</h6>
+                <p>
+                    Этот калькулятор позволяет рассчитать, какую массу жира вы сможете сбросить за указанный промежуток
+                    времени,
+                    если будете соблюдать определенный дефицит калорий относительно БОЗ.
+                </p>
+                <p>
+                    Необходимо ввести желаемый дефицит калорий в сутки, промежуток времени и нажать кнопку "Рассчитать".
+                    Результат покажет ожидаемую потерю веса жира через указанный промежуток времени, учитывая ваш
+                    пищевой дефицит калорий.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script src="{% static '/calculator/js/calculator.js' %}"></script>
+{% endif %}
+{% endif %}
+{% endblock content %}

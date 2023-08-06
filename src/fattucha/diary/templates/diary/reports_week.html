@@ -1,0 +1,442 @@
+{% extends 'users/layout.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load tz %}
+
+{% block css %}
+<link href="{% static 'diary/css/style.css' %}" rel="stylesheet">
+<style>
+  /* Добавим стили для адаптации таблицы на мобильных устройствах */
+  @media (max-width: 576px) {
+    .table-responsive {
+      overflow-x: auto;
+    }
+  }
+
+.raised-span {
+    position: relative; /* Обязательно установите позицию элемента, чтобы z-index работал */
+    z-index: 1; /* Задайте значение z-index, чтобы поднять элемент выше */
+    background-color: #f1f1f1;
+    padding: 5px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{% with monday=week_objects.0%}
+{% with tuesday=week_objects.1%}
+{% with wednesday=week_objects.2%}
+{% with thursday=week_objects.3%}
+{% with friday=week_objects.4%}
+{% with saturday=week_objects.5%}
+{% with sunday=week_objects.6%}
+{% with aim=user.aim|default_if_none:0 %}
+<div class="container">
+    <div class="row justify-content-center mb-3">
+        <div class="col-md-8">
+            <div class="dropdown" style="margin-top: 20px;">
+                <div class="btn-group w-100">
+                    <a href="{% url 'diary:week_reports' year week|minus:1 %}"
+                       class="btn btn-primary" type="button">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <button class="btn btn-primary dropdown-toggle w-100 rounded-0" type="button"
+                            id="dropdownMenuButton"
+                            data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">
+                        {% if current_date.week == week %}Текущая неделя
+                        {% elif week == current_date.week|minus:1 %}Прошлая неделя
+                        {% else %}
+                        {{week}}
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'diary:reports' current_date.date|date:'Y-m-d'%}">
+                                Сегодня
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'diary:reports' current_date.date|date:'Y-m-d'|delta_minus:24|date:'Y-m-d'%}">
+                                Вчера
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'diary:week_reports' year current_date.week %}">
+                                Текущая неделя</a>
+                        </li>
+                    </ul>
+                    {% if current_date.week == week %}
+                    <button class="btn btn-primary" type="button" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    {% else %}
+                    <a href="{% url 'diary:week_reports' year week|plus:1 %}    "
+                       class="btn btn-primary" type="button">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div style="margin-top: 20px">
+                <div style="margin-left: 10px;">
+                    <h4>Калории</h4>
+                    <h3>{{ calories.total_calories| floatformat }}</h3>
+                    <div class="d-flex justify-content-between">
+                        <h5>Среднесуточная норма: {{ calories.total_calories|divide:7|floatformat }}</h5>
+                        <h5>Цель: {{ aim }}</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="calories-chart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center mb-3">
+        <div class="col-md-12 text-center">
+            <div class="table-responsive">
+                <table class="table align-middle ">
+                    <thead>
+                    <tr>
+                        <th style="opacity:0; width: 50%;">Продукты</th>
+                        <th style='width: 50%;'>Ккал</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td style='width: 50%;'>Завтрак</td>
+                        <td style='width: 50%;'>{{ calories.breakfast_calories| floatformat }}</td>
+                    </tr>
+                    <tr>
+                        <td style='width: 50%;'>Обед</td>
+                        <td style='width: 50%;'>{{ calories.lunch_calories| floatformat }}</td>
+                    </tr>
+                    <tr>
+                        <td style='width: 50%;'>Ужин</td>
+                        <td style='width: 50%;'>{{ calories.dinner_calories| floatformat }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="carouselExample" class="carousel slide">
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <div class="row justify-content-center mb-3">
+        <h2 class="col-md-6 text-center">Понедельник</h2>
+        <div class="col-md-12 text-center">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th style='width: 50%;'>Продукты</th>
+                        <th style='width: 50%;'>Ккал</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for el in monday.data.food %}
+                    <tr>
+                        <td style='width: 50%;'>{{ el.product.name }}</td>
+                        <td style='width: 50%;'>{{ el.product.calories|divide:100|multiply:el.weight|floatformat }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Итог</th>
+                        <th>{% if monday.data.food %}{{ monday.data.info.0.calories|floatformat }}{% else %}0{% endif %}
+                        </th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="carousel-item">
+      <div class="row justify-content-center mb-3">
+        <h2 class="col-md-6 text-center">Вторник</h2>
+        <div class="col-md-12 text-center">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th style='width: 50%;'>Продукты</th>
+                        <th style='width: 50%;'>Ккал</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for el in tuesday.data.food %}
+                    <tr>
+                        <td style='width: 50%;'>{{ el.product.name }}</td>
+                        <td style='width: 50%;'>{{ el.product.calories|divide:100|multiply:el.weight|floatformat }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Итог</th>
+                        <th>{% if tuesday.data.food %}{{ tuesday.data.info.0.calories|floatformat }}{% else %}0{% endif %}
+                        </th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+      <div class="carousel-item">
+      <div class="row justify-content-center mb-3">
+        <h2 class="col-md-6 text-center">Среда</h2>
+        <div class="col-md-12 text-center">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th style='width: 50%;'>Продукты</th>
+                        <th style='width: 50%;'>Ккал</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for el in wednesday.data.food %}
+                    <tr>
+                        <td style='width: 50%;'>{{ el.product.name }}</td>
+                        <td style='width: 50%;'>{{ el.product.calories|divide:100|multiply:el.weight|floatformat }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Итог</th>
+                        <th>{% if wednesday.data.food %}{{ wednesday.data.info.0.calories|floatformat }}{% else %}0{% endif %}
+                        </th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+      <div class="carousel-item">
+      <div class="row justify-content-center mb-3">
+        <h2 class="col-md-6 text-center">Четверг</h2>
+        <div class="col-md-12 text-center">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th style='width: 50%;'>Продукты</th>
+                        <th style='width: 50%;'>Ккал</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for el in thursday.data.food %}
+                    <tr>
+                        <td style='width: 50%;'>{{ el.product.name }}</td>
+                        <td style='width: 50%;'>{{ el.product.calories|divide:100|multiply:el.weight|floatformat }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Итог</th>
+                        <th>{% if thursday.data.food %}{{ thursday.data.info.0.calories|floatformat }}{% else %}0{% endif %}
+                        </th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+      <div class="carousel-item">
+      <div class="row justify-content-center mb-3">
+        <h2 class="col-md-6 text-center">Пятница</h2>
+        <div class="col-md-12 text-center">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th style='width: 50%;'>Продукты</th>
+                        <th style='width: 50%;'>Ккал</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for el in friday.data.food %}
+                    <tr>
+                        <td style='width: 50%;'>{{ el.product.name }}</td>
+                        <td style='width: 50%;'>{{ el.product.calories|divide:100|multiply:el.weight|floatformat }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Итог</th>
+                        <th>{% if friday.data.food %}{{ friday.data.info.0.calories|floatformat }}{% else %}0{% endif %}
+                        </th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+      <div class="carousel-item">
+      <div class="row justify-content-center mb-3">
+        <h2 class="col-md-6 text-center">Суббота</h2>
+        <div class="col-md-12 text-center">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th style='width: 50%;'>Продукты</th>
+                        <th style='width: 50%;'>Ккал</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for el in saturday.data.food %}
+                    <tr>
+                        <td style='width: 50%;'>{{ el.product.name }}</td>
+                        <td style='width: 50%;'>{{ el.product.calories|divide:100|multiply:el.weight|floatformat }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Итог</th>
+                        <th>{% if saturday.data.food %}{{ saturday.data.info.0.calories|floatformat }}{% else %}0{% endif %}
+                        </th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+      <div class="carousel-item">
+      <div class="row justify-content-center mb-3">
+        <h2 class="col-md-6 text-center">Воскресенье</h2>
+        <div class="col-md-12 text-center">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th style='width: 50%;'>Продукты</th>
+                        <th style='width: 50%;'>Ккал</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for el in sunday.data.food %}
+                    <tr>
+                        <td style='width: 50%;'>{{ el.product.name }}</td>
+                        <td style='width: 50%;'>{{ el.product.calories|divide:100|multiply:el.weight|floatformat }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Итог</th>
+                        <th>{% if sunday.data.food %}{{ sunday.data.info.0.calories|floatformat }}{% else %}0{% endif %}
+                        </th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+  </div>
+        <button class="carousel-control-prev" type="button"  data-bs-target="#carouselExample" data-bs-slide="prev">
+            <span class="raised-span carousel-control-prev-icon" style="background-color: #333;" aria-hidden="true"></span>
+            <span class="visually-hidden">Предыдущий</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+            <span class="raised-span carousel-control-next-icon" style="background-color: #333;" aria-hidden="true"></span>
+            <span class="visually-hidden">Следующий</span>
+        </button>
+</div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js" integrity="sha512-Hn1w6YiiFw6p6S2lXv6yKeqTk0PLVzeCwWY9n32beuPjQ5HLcvz5l2QsP+KilEr1ws37rCTw3bZpvfvVIeTh0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+  // Данные для диаграммы (замените их на ваши данные)
+  const chartData = {
+    labels: [
+    "Понедельник {{monday.date|date:'d'}}",
+    "Вторник {{tuesday.date|date:'d'}}",
+    "Среда {{wednesday.date|date:'d'}}",
+    "Четверг {{thursday.date|date:'d'}}",
+    "Пятница {{friday.date|date:'d'}}",
+    "Суббота {{saturday.date|date:'d'}}",
+    "Воскресенье {{sunday.date|date:'d'}}", ],
+    datasets: [{
+      label: 'Калории',
+      data:
+      [{{ monday.data.info.0.calories|floatformat:0 }},
+      {{ tuesday.data.info.0.calories|floatformat:0 }},
+      {{ wednesday.data.info.0.calories|floatformat:0 }},
+      {{ thursday.data.info.0.calories|floatformat:0 }},
+      {{ friday.data.info.0.calories|floatformat:0 }},
+      {{ saturday.data.info.0.calories|floatformat:0 }},
+      {{ sunday.data.info.0.calories|floatformat:0 }}],
+      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+      hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+    }]
+  };
+  // Опции для диаграммы
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+    annotation: {
+      annotations: [{
+        type: 'line',
+        mode: 'horizontal',
+        scaleID: 'y',
+        value: {{aim}},
+        borderColor: 'black',
+        borderWidth: 2,
+        borderDash: [5, 5],
+        label: {
+          enabled: true,
+          content: 'Цель',
+          position: 'center',
+        }
+      }]
+    }
+  }
+  };
+  // Создание диаграммы
+  const ctx = document.getElementById('calories-chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: chartData,
+    options: chartOptions
+  });
+
+</script>
+{% endwith %}
+{% endwith %}
+{% endwith %}
+{% endwith %}
+{% endwith %}
+{% endwith %}
+{% endwith %}
+{% endwith %}
+{% endblock content %}

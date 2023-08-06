@@ -1,0 +1,164 @@
+{% load static %}
+{% block style %}
+{% endblock style %}
+
+{% block content %}
+<!-- Модальное окно "Поиск продукта" -->
+<div class="modal fade" id="searchFoodModal" tabindex="-1" aria-labelledby="searchFoodModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchFoodModalLabel">Поиск продукта</h5>
+            </div>
+            <div class="modal-body">
+                <div style="position: relative;">
+                    <input type="text" class="form-control mb-3" id="food-search-input" name='s'
+                           placeholder="Введите название продукта"/>
+                    <input type="Hidden" id="rep_type_input"/>
+                    <span class="clear-icon">&times;</span>
+                </div>
+                <div id="box" style="margin-top:15px">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <p>Не можете найти желаемое?</p>
+                <a href="{% url 'diary:add_product' %}">
+                    <i class="fas fa-utensils"></i> Добавить новую еду
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно "Добавление продукта в дневник" -->
+<div class="modal fade" id="addFoodModal" tabindex="-1" aria-labelledby="addFoodModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFoodModalLabel">Добавление продукта в дневник</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'diary:add_in_diary' %}" method="POST">
+                    {% csrf_token %}
+                    {{form.report_type}}
+                    {{form.product}}
+                    {{form.report}}
+                    <label for="{{form.weight.auto_id}}" class="form-label">Вес продукта (в
+                        граммах):</label>
+                    <div class="input-group mb-3">
+                        {{form.weight}}
+                        <span class="input-group-text">г</span>
+                    </div>
+
+                    <table class="table table-bordered">
+                        <tbody>
+                        <tr>
+                            <td class="text-center" id='calories'>Калории<br></td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" id='protein'>Белки<br></td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" id='fat'>Жиры<br></td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" id='carbs'>Углеводы<br></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="form-group d-flex align-items-center justify-content-between mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+                                data-bs-target="#searchFoodModal" data-bs-dismiss="modal">Назад
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="save-food-button">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Модальное окно "Обновление продукта в дневник" -->
+<div class="modal fade" id="changeFoodSettingsModal" tabindex="-1" aria-labelledby="addFoodModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeFoodSettingsModalLabel">Изменение продукта в дневнике</h5>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'diary:change_food' 0 %}" id="change_form">
+                    {% csrf_token %}
+                    {{change_modal_form.report_type}}
+                    {{change_modal_form.food_id}}
+                    {{change_modal_form.product}}
+                    <label for="{{food.weight.auto_id}}" class="form-label">Вес продукта (в граммах):</label>
+                    <div class="input-group mb-3">
+                        {{change_modal_form.weight}}
+                        <span class="input-group-text">г</span>
+                    </div>
+
+                    <table class="table table-bordered">
+                        <tbody>
+                        <tr>
+                            <td class="text-center" id='calories_1'>Калории<br></td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" id='protein_1'>Белки<br></td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" id='fat_1'>Жиры<br></td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" id='carbs_1'>Углеводы<br></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="form-group d-flex align-items-center justify-content-between mt-4">
+                        <a href="{% url 'diary:remove_food' 0%}" id='remove_food' class="btn btn-secondary">
+                            Удалить
+                        </a>
+                        <button class="btn btn-primary" id="save-changes_food-button" name="update_sub">
+                            Сохранить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Модальное окно -->
+<div class="modal fade" id="a" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Заголовок модального окна</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary">Сохранить изменения</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script> const report_id = {{day.pk}} </script>
+<script src="{% static '/diary/js/modals.js' %}"></script>
+<script>
+
+const clearIcon = document.querySelector('.clear-icon');
+clearIcon.addEventListener('click', () => {
+  input.value = '';
+  box.innerHTML = "<b></b>";
+});
+
+</script>
+{% endblock content %}

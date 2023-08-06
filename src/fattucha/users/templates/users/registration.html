@@ -1,0 +1,66 @@
+{% extends 'users/layout.html' %}
+
+{% block style %}
+<style>
+    @media (min-width: 992px) {
+        .card {
+            width: 80%;
+            margin: 0 auto;
+        }
+    }
+
+    .form-group:not(:last-child) {
+        margin-bottom: 5px;
+    }
+
+    /* Увеличение расстояния между элементами */
+    .form-group label,
+    .form-group input {
+        margin-bottom: 5px;
+    }
+
+</style>
+{% endblock style %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            {% if form.errors %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert"
+                 style="margin-top: 50px;">
+                {{ form.errors }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                <div class="card-header">
+                    <h3 class="text-center font-weight-light my-4">Регистрация</h3>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'users:registration' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="small mb-1" for="{{ form.username.auto_id }}">Адрес электронной почты</label>
+                            {{ form.email }}
+                            <label class="small mb-1" for="{{ form.username.auto_id }}">Имя пользователя</label>
+                            {{ form.username }}
+                            <label class="small mb-1" for="{{ form.password1.auto_id }}">Пароль</label>
+                            {{ form.password1 }}
+                            <label class="small mb-1" for="{{ form.password2.auto_id }}">Подтверждение пароля</label>
+                            {{ form.password2 }}
+                        </div>
+                        <div class="form-group d-grid gap-2" style="margin-top: 20px;">
+                            <input class="btn btn-primary" type="submit" value="Создать аккаунт">
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <div class="small"><a href="{% url 'users:login' %}">Уже есть аккаунт? Авторизоваться</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

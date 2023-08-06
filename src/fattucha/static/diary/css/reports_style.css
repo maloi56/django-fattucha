@@ -1,0 +1,8 @@
+.chart-container {
+  margin-top: 20px;
+  height: 400px;
+}
+
+.table tfoot th:first-child {
+  text-align: right;
+}
