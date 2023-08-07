@@ -1,0 +1,38 @@
+[
+{
+    "model": "users.tariff",
+    "pk": 1,
+    "fields": {
+        "name": "Стартовый",
+        "price": 100,
+        "duration": 1
+    }
+},
+{
+    "model": "users.tariff",
+    "pk": 2,
+    "fields": {
+        "name": "Бронзовый",
+        "price": 269,
+        "duration": 3
+    }
+},
+{
+    "model": "users.tariff",
+    "pk": 3,
+    "fields": {
+        "name": "Серебряный",
+        "price": 510,
+        "duration": 6
+    }
+},
+{
+    "model": "users.tariff",
+    "pk": 4,
+    "fields": {
+        "name": "Золотой",
+        "price": 960,
+        "duration": 12
+    }
+}
+]

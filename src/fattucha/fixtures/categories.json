@@ -1,0 +1,86 @@
+[
+{
+    "model": "recipes.recipecategory",
+    "pk": 1,
+    "fields": {
+        "name": "Супы"
+    }
+},
+{
+    "model": "recipes.recipecategory",
+    "pk": 2,
+    "fields": {
+        "name": "Основные блюда"
+    }
+},
+{
+    "model": "recipes.recipecategory",
+    "pk": 3,
+    "fields": {
+        "name": "Гарниры"
+    }
+},
+{
+    "model": "recipes.recipecategory",
+    "pk": 4,
+    "fields": {
+        "name": "Хлеб и хлебобулочные изделия"
+    }
+},
+{
+    "model": "recipes.recipecategory",
+    "pk": 5,
+    "fields": {
+        "name": "Салаты"
+    }
+},
+{
+    "model": "recipes.recipecategory",
+    "pk": 6,
+    "fields": {
+        "name": "Соусы и приправы"
+    }
+},
+{
+    "model": "recipes.recipecategory",
+    "pk": 7,
+    "fields": {
+        "name": "Десерты"
+    }
+},
+{
+    "model": "recipes.recipecategory",
+    "pk": 8,
+    "fields": {
+        "name": "Закуски"
+    }
+},
+{
+    "model": "recipes.recipecategory",
+    "pk": 9,
+    "fields": {
+        "name": "Напитки"
+    }
+},
+{
+    "model": "recipes.recipecategory",
+    "pk": 10,
+    "fields": {
+        "name": "Другие"
+    }
+},
+{
+    "model": "recipes.recipecategory",
+    "pk": 11,
+    "fields": {
+        "name": "Завтрак"
+    }
+},
+{
+    "model": "recipes.recipecategory",
+    "pk": 12,
+    "fields": {
+        "name": "Обед"
+    }
+}
+]

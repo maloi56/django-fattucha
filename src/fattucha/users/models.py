@@ -36,7 +36,7 @@ class User(AbstractUser):
 
     @property
     def is_premium_active(self):
-        return now() < self.premium_date
+        return now() < self.premium_date if self.premium_date else False
 
 
 class EmailVerification(models.Model):
