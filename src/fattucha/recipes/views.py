@@ -25,7 +25,9 @@ class RecipesViews(TitleMixin, ListView):
     delta_first = 0
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(status=Recipe.APPROVED)
+        queryset = super().get_queryset().filter(status=Recipe.APPROVED) \
+            .select_related('category', 'creator') \
+            .prefetch_related('ingredients')
         search = self.request.GET.get('q')
         if search:
             vector = SearchVector('name', )
@@ -38,8 +40,8 @@ class RecipesViews(TitleMixin, ListView):
             category_id = self.kwargs.get('category_id')
             result = queryset.filter(category_id=category_id) if category_id \
                 else queryset
-            return result.order_by('pk') if filter == 'all' else result.filter(creator=self.request.user.id).order_by(
-                'pk')
+            return result.order_by('pk') if filter == 'all' else \
+                result.filter(creator=self.request.user.id).order_by('pk')
 
     def get_paginator(self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs):
         if self.delta_first:
@@ -56,7 +58,6 @@ class RecipesViews(TitleMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = RecipeCategory.objects.all().order_by('name')
-        context['q_arg'] = self.request.GET.get('q', 'None')
         return context
 
 

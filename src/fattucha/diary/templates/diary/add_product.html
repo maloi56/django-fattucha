@@ -46,7 +46,7 @@
             </div>
             {% endif %}
             <h4 class="mt-3 mb-3">Добавление продукта</h4>
-            <form method="POST" enctype="multipart/form-data" action="{% url 'diary:add_product'%}">
+            <form method="POST" action="{% url 'diary:add_product'%}">
                 {% csrf_token %}
                 <div class="col-lg-12 text-center" style="margin-bottom: 15px;">
                     <img id="image-preview" width="150" height="150" src="{% static '/img/diary/default_food.svg' %}" alt="Image preview" class="img-thumbnail">

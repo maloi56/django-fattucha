@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.core.cache import cache
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -15,7 +16,6 @@ class Products(models.Model):
     protein = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)])
     fat = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)])
     carbohydrates = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)])
-    image = models.ImageField(upload_to='products_images', null=True, blank=True)
 
     def __str__(self):
         return f'Продукт - {self.name}, бренд - {self.brand}'
@@ -46,14 +46,15 @@ class DailyReport(models.Model):
         return f'Пользователь - {self.user}, дата - {self.date}'
 
     def get_today(self):
-        return FoodInReport.objects.filter(report=self.pk)
+        return FoodInReport.objects.filter(report=self.pk).select_related('product', 'report')
 
     @staticmethod
     def get_week_objects(user, year, week):
-        cache_key = f'week_objects:{user.pk}:{year}:{week}'
-        cached_data = cache.get(cache_key)
-        if cached_data is not None:
-            return cached_data
+        if not settings.DEBUG:  # Temporary solution
+            cache_key = f'week_objects:{user.pk}:{year}:{week}'
+            cached_data = cache.get(cache_key)
+            if cached_data is not None:
+                return cached_data
 
         first_day_of_week = datetime.strptime(f'{year}-{week}-1', "%Y-%W-%w").date()
         dates = {i: {'date': first_day_of_week + timedelta(days=i),
@@ -66,9 +67,11 @@ class DailyReport(models.Model):
         lunch_calories = [dates[i]['data']['info'][2]['calories'] for i in range(7)]
         dinner_calories = [dates[i]['data']['info'][3]['calories'] for i in range(7)]
         total_calories = {'total_calories': sum(total_calories), 'breakfast_calories': sum(breakfast_calories),
+
                           'lunch_calories': sum(lunch_calories), 'dinner_calories': sum(dinner_calories)}
 
-        cache.set(cache_key, (dates, total_calories), timeout=3600)
+        if not settings.DEBUG:  # Temporary solution
+            cache.set(cache_key, (dates, total_calories), timeout=3600)
         return dates, total_calories
 
     @staticmethod
@@ -97,7 +100,7 @@ class FoodQuerySet(models.QuerySet):
     def total_sum(self):
         total = self.sum()
         total_list = [total] + [
-            self.filter(report_type=i).aggregate(
+            self.filter(report_type=i).select_related('product').aggregate(
                 protein=Sum(ExpressionWrapper(F('weight') * F('product__protein') / 100,
                                               output_field=FloatField()), default=0),
                 fat=Sum(ExpressionWrapper(F('weight') * F('product__fat') / 100,

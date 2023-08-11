@@ -5,21 +5,7 @@
 
 {% block css %}
 <link href="{% static 'diary/css/style.css' %}" rel="stylesheet">
-<style>
-  /* Добавим стили для адаптации таблицы на мобильных устройствах */
-  @media (max-width: 576px) {
-    .table-responsive {
-      overflow-x: auto;
-    }
-  }
-
-.raised-span {
-    position: relative; /* Обязательно установите позицию элемента, чтобы z-index работал */
-    z-index: 1; /* Задайте значение z-index, чтобы поднять элемент выше */
-    background-color: #f1f1f1;
-    padding: 5px;
-  }
-</style>
+<link href="{% static 'diary/css/reports_style.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -46,7 +32,7 @@
                         {% if current_date.week == week %}Текущая неделя
                         {% elif week == current_date.week|minus:1 %}Прошлая неделя
                         {% else %}
-                        {{week}}
+                        {{week|get_week_period:current_date.year}}
                         {% endif %}
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">

@@ -55,7 +55,7 @@
             </table>
             <div class="col-12 col-md-10 mt-3">
                 <h5> Ингредиенты:</h5>
-                {% for ingredient in recipe.ingredients.all %}
+                {% for ingredient in recipe.get_ingredients %}
                 <div class="col">
                     <div class="d-flex align-items-center">
                         <span>{{ingredient.product.name|title}}</span>

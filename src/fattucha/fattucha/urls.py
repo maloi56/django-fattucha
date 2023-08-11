@@ -18,7 +18,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from rest_framework.authtoken.views import obtain_auth_token
 
+from users.views import youkassa_webhook_view
 from diary.views import IndexView, get_products
 from recipes.views import like_post
 
@@ -31,6 +33,9 @@ urlpatterns = [
     path('recipes/', include('recipes.urls', namespace='recipes')),
     path('like/', like_post, name='like'),
     path('get_products/', get_products, name='get_products'),
+    path('webhook/', youkassa_webhook_view, name='youkassa_webhook'),
+    path('api/', include('api.urls', namespace='api')),
+    path('api-token-auth/', obtain_auth_token),
 ]
 
 if settings.DEBUG:

@@ -33,8 +33,11 @@ class Recipe(models.Model):
     def __str__(self):
         return f'{self.name} от {self.creator.username}'
 
+    def get_ingredients(self):
+        return self.ingredients.all().select_related('product')
+
     def get_portion_info(self):
-        ingredients = self.ingredients.all()
+        ingredients = self.get_ingredients()
         result = {'calories': 0, 'protein': 0, 'fat': 0, 'carbs': 0}
         for ingregient in ingredients:
             result['calories'] += ingregient.product.calories / 100 * ingregient.weight

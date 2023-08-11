@@ -1,6 +1,7 @@
 import json
 from datetime import date
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -50,10 +51,9 @@ class ReportView(TitleMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        now_date = kwargs['date'].strftime('%Y-%m-%d') if 'date' in kwargs else date.today()
+        now_date = kwargs['date'] if 'date' in kwargs else date.today()
         diary_obj, created = DailyReport.objects.get_or_create(date=now_date, user=self.request.user)
-
-        context['day'] = diary_obj.date
+        context['day'] = now_date
         context['diary_obj'] = diary_obj.get_today()
         context['total_sum'] = context['diary_obj'].total_sum()
 
@@ -73,7 +73,6 @@ class DairyView(TitleMixin, LoginRequiredMixin, TemplateView):
 
         context['form'] = DiaryForm()
         context['change_modal_form'] = ChangeModalForm()
-        context['products'] = json.dumps(list(Products.objects.values()))
 
         diary_obj, created = DailyReport.objects.get_or_create(date=now_date, user=self.request.user)
 
@@ -97,11 +96,12 @@ class AddInDiaryView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
 
-        # # Обновление кэша
-        cache_key = f'week_objects:{self.request.user.pk}:' \
-                    f'{self.object.report.date.year}:' \
-                    f'{self.object.report.date.isocalendar()[1]}'
-        cache.delete(cache_key)
+        # Обновление кэша
+        if not settings.DEBUG:  # Temporary solution
+            cache_key = f'week_objects:{self.request.user.pk}:' \
+                        f'{self.object.report.date.year}:' \
+                        f'{self.object.report.date.isocalendar()[1]}'
+            cache.delete(cache_key)
 
         return response
 

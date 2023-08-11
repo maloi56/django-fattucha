@@ -5,16 +5,7 @@
 
 {% block css %}
 <link href="{% static 'diary/css/style.css' %}" rel="stylesheet">
-<style>
-  /* Добавим стили для адаптации таблицы на мобильных устройствах */
-  @media (max-width: 576px) {
-    .table-responsive {
-      overflow-x: auto;
-    }
-  }
-
-
-</style>
+<link href="{% static 'diary/css/reports_style.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}

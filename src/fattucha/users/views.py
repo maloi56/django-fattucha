@@ -1,7 +1,11 @@
+import json
 import uuid
+
 from datetime import timedelta
 from http import HTTPStatus
+from fattucha.settings import logger
 
+from django.http import HttpResponse
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
@@ -10,9 +14,11 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils.timezone import now
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from yookassa import Configuration, Payment
+from yookassa.domain.notification import WebhookNotificationEventType, WebhookNotificationFactory
 
 from calculator.forms import TariffForm
 from common.views import TitleMixin
@@ -116,11 +122,33 @@ class PremiumView(TitleMixin, FormView):
                 "value": tariff.price,
                 "currency": "RUB"
             },
+            "metadata": {
+                "user_id": self.request.user.pk,
+                "tariff_id": tariff.pk
+            },
             "confirmation": {
                 "type": "redirect",
-                "return_url": "https://www.example.com/return_url"
+                "return_url": 'https://fattucha.ru/'
             },
             "capture": True,
             "description": f"Премиум аккаунт {tariff.name} на FatTucha"
         }, uuid.uuid4())
         return HttpResponseRedirect(payment.confirmation.confirmation_url, status=HTTPStatus.SEE_OTHER)
+
+
+@logger.catch
+@csrf_exempt
+def youkassa_webhook_view(request):
+    event_json = json.loads(request.body)
+    try:
+        notification_object = WebhookNotificationFactory().create(event_json)
+        logger.info(f'notification_object - {notification_object.object.metadata}')
+        response_object = notification_object.object.metadata
+        if notification_object.event == WebhookNotificationEventType.PAYMENT_SUCCEEDED:
+            User.objects.get(pk=int(response_object['user_id'])).get_premium(int(response_object['tariff_id']))
+        else:
+            return HttpResponse(status=400)
+    except Exception:
+        return HttpResponse(status=400)
+
+    return HttpResponse(status=200)

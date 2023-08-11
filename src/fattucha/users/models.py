@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+from rest_framework.authtoken.models import Token
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.mail import EmailMultiAlternatives
@@ -33,6 +36,11 @@ class User(AbstractUser):
 
     def is_liked(self, pk):
         return self.likes.filter(recipe=pk).exists()
+
+    def get_premium(self, tariff_id):
+        duration = Tariff.objects.get(pk=tariff_id).duration * 30
+        self.premium_date = now() + timedelta(days=duration)
+        self.save()
 
     @property
     def is_premium_active(self):

@@ -22,13 +22,10 @@ class AddProductForm(forms.ModelForm):
     carbohydrates = forms.IntegerField(widget=forms.TextInput(attrs={
         'class': 'form-control', 'placeholder': 'Введите углеводы'
     }), label='Углеводы (на 100 грамм)')
-    image = forms.ImageField(required=False, widget=forms.FileInput(attrs={
-        'class': 'form-control', 'placeholder': 'Загрузите фотографию продукта', 'id': 'image-input'
-    }), label='Загрузить картинку')
 
     class Meta:
         model = Products
-        fields = ('brand', 'name', 'calories', 'protein', 'fat', 'carbohydrates', 'image',)
+        fields = ('brand', 'name', 'calories', 'protein', 'fat', 'carbohydrates', )
 
 
 class DiaryForm(forms.ModelForm):

@@ -2,7 +2,10 @@ from django.contrib import admin
 
 from diary.models import DailyReport, FoodInReport, Products
 
-admin.site.register(Products)
+
+@admin.register(Products)
+class ProductsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'brand',)
 
 
 @admin.register(FoodInReport)

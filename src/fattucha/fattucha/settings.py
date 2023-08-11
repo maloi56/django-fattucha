@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import environ
 from pathlib import Path
+from loguru import logger
 
 env = environ.Env(
     DEBUG=(bool),
@@ -71,12 +72,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',
-    # 'debug_toolbar',
+    'debug_toolbar',
 
     'users',
     'diary',
     'calculator',
     'recipes',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +90,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'fattucha.urls'
@@ -193,6 +195,7 @@ EMAIL_PORT = env('EMAIL_PORT')
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_SSL = env('EMAIL_USE_SSL')
+EMAIL_USE_TLS = True
 
 # Celery
 
@@ -212,3 +215,20 @@ CACHES = {
 
 ACCOUNT_ID = env('ACCOUNT_ID')
 KASSA_SECRET_KEY = env('KASSA_SECRET_KEY')
+
+# logguru
+
+logger.add('debug.log', format='{time} {level} {message}', level='INFO', rotation='10 MB')
+
+# DJANGO REST API
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+            'rest_framework.renderers.JSONRenderer',
+        ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}

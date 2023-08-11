@@ -47,3 +47,10 @@ def delta_sum(arg, value):
         return datetime.strptime(arg, "%Y-%m-%d").date() + timedelta(hours=value)
     except TypeError:
         return ''
+
+
+@register.filter
+def get_week_period(week, year):
+    first_day_of_week = datetime.strptime(f'{year}-{week}-1', "%Y-%W-%w").date()
+    result = f'{first_day_of_week} - {first_day_of_week + timedelta(6)}'
+    return result

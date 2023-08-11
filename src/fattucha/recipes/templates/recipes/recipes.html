@@ -126,9 +126,11 @@
                                         <h3 class="card-title">{{ recipe.name }}</h3>
                                     </a>
                                     <p class="card-text text-truncate">
-                                        Ингредиенты:{% for ingredient in recipe.ingredients.all %}
-                                        "{{ingredient.product.name|lower}}"{% if recipe.ingredients.last == ingredient%}.{% else %},{% endif %}
+                                        {% with last=recipe.ingredients.last%}
+                                        Ингредиенты:{% for ingredient in recipe.get_ingredients %}
+                                        "{{ingredient.product.name|lower}}"{% if recipe.last == ingredient%}.{% else %},{% endif %}
                                         {% endfor %}
+                                        {% endwith %}
                                     </p>
                                 </div>
                                     <div class="card-body">
